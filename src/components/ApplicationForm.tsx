@@ -44,7 +44,7 @@ export default function ApplicationForm() {
                     }}>✅</div>
                     <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.75rem' }}>Application Received!</h2>
                     <p style={{ color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: '2rem' }}>
-                        Thank you, <strong style={{ color: 'var(--text-primary)' }}>{form.fullName.split(' ')[0]}</strong>! We'll review your details and contact you on WhatsApp if you're shortlisted.
+                        Thank you, <strong style={{ color: 'var(--text-primary)' }}>{form.fullName.split(' ')[0]}</strong>! We'll review your details and contact you soon.
                     </p>
                     <button className="btn btn-ghost" style={{ width: '100%' }}
                         onClick={() => { setForm({ fullName: '', age: '', gender: '', whatsappNumber: '', email: '', currentStatus: '' }); setSubmitted(false); }}>
