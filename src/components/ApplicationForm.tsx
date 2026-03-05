@@ -88,7 +88,7 @@ export default function ApplicationForm() {
                     Personal Training<br />Program 2026
                 </h1>
                 <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', lineHeight: 1.75, maxWidth: 460, margin: '0 auto' }}>
-                    A hands-on mentorship for those serious about upgrading skills, mindset, and execution. Starting <strong>March 1st, 2026</strong>.
+                    A hands-on mentorship for those serious about upgrading skills, mindset, and execution. Starting <strong>April 1st, 2026</strong>.
                 </p>
             </motion.div>
 
