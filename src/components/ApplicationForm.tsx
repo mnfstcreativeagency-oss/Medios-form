@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 
 const fadeUp = { initial: { opacity: 0, y: 14 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.4 } };
 
@@ -16,9 +18,19 @@ export default function ApplicationForm() {
     const handle = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
         setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
+    const handlePhoneChange = (value?: string) => {
+        setForm(p => ({ ...p, whatsappNumber: value || '' }));
+    };
+
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSubmitting(true); setError('');
+
+        if (!form.whatsappNumber || !isValidPhoneNumber(form.whatsappNumber)) {
+            setError('Please enter a valid  number.');
+            setSubmitting(false);
+            return;
+        }
         try {
             const res = await fetch('/api/apply', {
                 method: 'POST',
@@ -170,9 +182,13 @@ export default function ApplicationForm() {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem', marginBottom: '1.5rem' }}>
                         <div className="field-group" style={{ margin: 0 }}>
                             <label className="field-label">WhatsApp Number <span className="req">*</span></label>
-                            <input name="whatsappNumber" type="tel" required className="field-input"
+                            <PhoneInput
+                                defaultCountry="IN"
                                 placeholder="+91 98765 43210"
-                                value={form.whatsappNumber} onChange={handle} />
+                                value={form.whatsappNumber}
+                                onChange={handlePhoneChange}
+                                className="field-input phone-input-override"
+                            />
                         </div>
                         <div className="field-group" style={{ margin: 0 }}>
                             <label className="field-label">Email Address <span className="req">*</span></label>
@@ -206,6 +222,34 @@ export default function ApplicationForm() {
           form > div[style*="grid-template-columns"] {
             grid-template-columns: 1fr !important;
           }
+        }
+        .phone-input-override {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 0 14px;
+        }
+        .phone-input-override .PhoneInputCountry {
+          margin-right: 0;
+          display: flex;
+          align-items: center;
+        }
+        .phone-input-override .PhoneInputCountrySelectArrow {
+          margin-left: 6px;
+        }
+        .phone-input-override input {
+          border: none;
+          background: transparent;
+          outline: none;
+          height: 100%;
+          width: 100%;
+          font-family: inherit;
+          font-size: 0.9375rem;
+          color: var(--text-primary);
+        }
+        .phone-input-override input::placeholder {
+          color: var(--text-muted);
+          font-weight: 400;
         }
       `}</style>
         </div>
