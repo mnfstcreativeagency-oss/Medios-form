@@ -13,6 +13,8 @@ interface Application {
     currentStatus: string;
     status: 'Pending' | 'Done with cold call';
     converted: 'Yes' | 'No' | 'Pending';
+    followUpNeeded: 'Yes' | 'No' | 'Pending';
+    reason?: string;
     createdAt: string;
 }
 
@@ -191,6 +193,51 @@ export default function AdminDashboard() {
         </div>
     );
 
+    const FollowUpPicker = ({ app }: { app: Application }) => (
+        <div style={{ display: 'inline-flex', background: 'var(--surface-3)', borderRadius: 8, padding: 2, gap: 2 }}>
+            {(['Yes', 'No'] as const).map(v => (
+                <button key={`follow-${v}`} disabled={updatingId === app._id}
+                    onClick={() => update(app._id, { followUpNeeded: v })}
+                    style={{
+                        padding: '3px 12px', borderRadius: 6, border: 'none', cursor: 'pointer',
+                        fontFamily: 'inherit', fontWeight: 700, fontSize: '0.75rem', transition: 'all 0.15s',
+                        background: app.followUpNeeded === v ? (v === 'Yes' ? 'var(--amber)' : 'var(--surface-2)') : 'transparent',
+                        color: app.followUpNeeded === v ? (v === 'Yes' ? '#fff' : 'var(--text-primary)') : 'var(--text-muted)',
+                    }}>
+                    {v}
+                </button>
+            ))}
+        </div>
+    );
+
+    const ReasonInput = ({ app }: { app: Application }) => {
+        const [val, setVal] = useState(app.reason || '');
+        const isDirty = val !== (app.reason || '');
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <textarea
+                    className="field-input"
+                    style={{ padding: '8px', fontSize: '0.8125rem', height: 42, borderRadius: 8, minWidth: 140, resize: 'vertical' }}
+                    placeholder="Add a reason..."
+                    value={val}
+                    onChange={(e) => setVal(e.target.value)}
+                    disabled={updatingId === app._id}
+                />
+                <button
+                    disabled={!isDirty || updatingId === app._id}
+                    onClick={() => update(app._id, { reason: val })}
+                    style={{
+                        padding: '4px 10px', fontSize: '0.7rem', borderRadius: 4, cursor: isDirty ? 'pointer' : 'not-allowed',
+                        background: isDirty ? 'var(--accent)' : 'var(--surface-3)',
+                        color: isDirty ? '#fff' : 'var(--text-muted)', border: 'none', alignSelf: 'flex-start',
+                        transition: '0.2s', fontWeight: 600
+                    }}>
+                    {updatingId === app._id ? 'Saving...' : 'Save'}
+                </button>
+            </div>
+        );
+    };
+
     /* Toolbar shared between desktop + mobile */
     const Toolbar = () => (
         <div style={{ display: 'flex', gap: '0.625rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
@@ -303,7 +350,7 @@ export default function AdminDashboard() {
                     {/* ── Desktop Table ── */}
                     <div className="data-table card" style={{ padding: 0, overflow: 'hidden' }}>
                         <div className="table-header">
-                            {['Applicant', 'Contact', 'Status', 'Converted', 'Date'].map(h => (
+                            {['Applicant', 'Contact', 'Status', 'Converted', 'Follow Up', 'Reason', 'Date'].map(h => (
                                 <p key={h} style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--text-muted)' }}>{h}</p>
                             ))}
                         </div>
@@ -326,11 +373,13 @@ export default function AdminDashboard() {
                                             style={{ display: 'block', fontWeight: 600, fontSize: '0.875rem', color: 'var(--green)', textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 2 }}>
                                             {app.whatsappNumber}
                                         </a>
-                                        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{app.email}</p>
+                                        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', wordBreak: 'break-all' }}>{app.email}</p>
                                     </div>
 
                                     <div><StatusToggle app={app} /></div>
                                     <div><ConvertedPicker app={app} /></div>
+                                    <div><FollowUpPicker app={app} /></div>
+                                    <div><ReasonInput app={app} /></div>
                                     <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
                                         {new Date(app.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                                     </p>
@@ -388,19 +437,29 @@ export default function AdminDashboard() {
                                             border: '1px solid var(--border)',
                                         }}>
                                             <span style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: 2 }}>Email</span>
-                                            <span style={{ fontWeight: 600, fontSize: '0.8125rem', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{app.email}</span>
+                                            <span style={{ fontWeight: 600, fontSize: '0.8125rem', color: 'var(--text-secondary)', wordBreak: 'break-all' }}>{app.email}</span>
                                         </div>
                                     </div>
 
                                     {/* Actions */}
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                            <span style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--text-muted)' }}>Converted?</span>
-                                            <ConvertedPicker app={app} />
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.875rem' }}>
+                                        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                                <span style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--text-muted)' }}>Converted?</span>
+                                                <ConvertedPicker app={app} />
+                                            </div>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                                <span style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--text-muted)' }}>Follow Up?</span>
+                                                <FollowUpPicker app={app} />
+                                            </div>
                                         </div>
                                         <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                                             {new Date(app.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                                         </p>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                        <span style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--text-muted)' }}>Reason</span>
+                                        <ReasonInput app={app} />
                                     </div>
 
                                     {updatingId === app._id && (

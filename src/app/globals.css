@@ -308,7 +308,7 @@ select.field-input {
 .table-header,
 .table-row {
   display: grid;
-  grid-template-columns: 2fr 1.5fr 1fr 1fr 1.1fr;
+  grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 2fr 1.1fr;
   gap: 1rem;
   padding: 0.875rem 1.5rem;
   align-items: center;
