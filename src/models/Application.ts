@@ -10,6 +10,7 @@ export interface IApplication extends Document {
     status: 'Pending' | 'Done with cold call';
     converted: 'Yes' | 'No' | 'Pending';
     followUpNeeded: 'Yes' | 'No' | 'Pending';
+    whatsappStatus: 'Yes' | 'No' | 'Pending';
     reason?: string;
     createdAt: Date;
 }
@@ -24,6 +25,7 @@ const ApplicationSchema: Schema = new Schema({
     status: { type: String, default: 'Pending', enum: ['Pending', 'Done with cold call'] },
     converted: { type: String, default: 'Pending', enum: ['Yes', 'No', 'Pending'] },
     followUpNeeded: { type: String, default: 'Pending', enum: ['Yes', 'No', 'Pending'] },
+    whatsappStatus: { type: String, default: 'Pending', enum: ['Yes', 'No', 'Pending'] },
     reason: { type: String, default: '' },
     createdAt: { type: Date, default: Date.now },
 });

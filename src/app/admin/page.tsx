@@ -14,6 +14,7 @@ interface Application {
     status: 'Pending' | 'Done with cold call';
     converted: 'Yes' | 'No' | 'Pending';
     followUpNeeded: 'Yes' | 'No' | 'Pending';
+    whatsappStatus: 'Yes' | 'No' | 'Pending';
     reason?: string;
     createdAt: string;
 }
@@ -210,6 +211,23 @@ export default function AdminDashboard() {
         </div>
     );
 
+    const WhatsAppPicker = ({ app }: { app: Application }) => (
+        <div style={{ display: 'inline-flex', background: 'var(--surface-3)', borderRadius: 8, padding: 2, gap: 2 }}>
+            {(['Yes', 'No'] as const).map(v => (
+                <button key={`wa-${v}`} disabled={updatingId === app._id}
+                    onClick={() => update(app._id, { whatsappStatus: v })}
+                    style={{
+                        padding: '3px 12px', borderRadius: 6, border: 'none', cursor: 'pointer',
+                        fontFamily: 'inherit', fontWeight: 700, fontSize: '0.75rem', transition: 'all 0.15s',
+                        background: app.whatsappStatus === v ? (v === 'Yes' ? 'var(--green)' : 'var(--surface-2)') : 'transparent',
+                        color: app.whatsappStatus === v ? '#fff' : 'var(--text-muted)',
+                    }}>
+                    {v}
+                </button>
+            ))}
+        </div>
+    );
+
     const ReasonInput = ({ app }: { app: Application }) => {
         const [val, setVal] = useState(app.reason || '');
         const isDirty = val !== (app.reason || '');
@@ -350,9 +368,16 @@ export default function AdminDashboard() {
                     {/* ── Desktop Table ── */}
                     <div className="data-table card" style={{ padding: 0, overflow: 'hidden' }}>
                         <div className="table-header">
-                            {['Applicant', 'Contact', 'Status', 'Converted', 'Follow Up', 'Reason', 'Date'].map(h => (
-                                <p key={h} style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--text-muted)' }}>{h}</p>
-                            ))}
+                            {['Applicant', 'Contact', 'Status', 'WhatsApp', 'Converted', 'Follow Up', 'Reason', 'Date'].map(h => {
+                                const isCenter = ['Status', 'WhatsApp', 'Converted', 'Follow Up'].includes(h);
+                                return (
+                                    <p key={h} style={{
+                                        fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase',
+                                        letterSpacing: '0.07em', color: 'var(--text-muted)',
+                                        textAlign: isCenter ? 'center' : 'left'
+                                    }}>{h}</p>
+                                );
+                            })}
                         </div>
 
                         <AnimatePresence>
@@ -376,9 +401,10 @@ export default function AdminDashboard() {
                                         <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', wordBreak: 'break-all' }}>{app.email}</p>
                                     </div>
 
-                                    <div><StatusToggle app={app} /></div>
-                                    <div><ConvertedPicker app={app} /></div>
-                                    <div><FollowUpPicker app={app} /></div>
+                                    <div style={{ display: 'flex', justifyContent: 'center' }}><StatusToggle app={app} /></div>
+                                    <div style={{ display: 'flex', justifyContent: 'center' }}><WhatsAppPicker app={app} /></div>
+                                    <div style={{ display: 'flex', justifyContent: 'center' }}><ConvertedPicker app={app} /></div>
+                                    <div style={{ display: 'flex', justifyContent: 'center' }}><FollowUpPicker app={app} /></div>
                                     <div><ReasonInput app={app} /></div>
                                     <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
                                         {new Date(app.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -444,6 +470,10 @@ export default function AdminDashboard() {
                                     {/* Actions */}
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.875rem' }}>
                                         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                                <span style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--text-muted)' }}>WhatsApp?</span>
+                                                <WhatsAppPicker app={app} />
+                                            </div>
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                                                 <span style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--text-muted)' }}>Converted?</span>
                                                 <ConvertedPicker app={app} />

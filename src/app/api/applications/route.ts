@@ -21,7 +21,7 @@ export async function GET(req: Request) {
 
 export async function PATCH(req: Request) {
     try {
-        const { id, status, converted, followUpNeeded, reason, password } = await req.json();
+        const { id, status, converted, followUpNeeded, whatsappStatus, reason, password } = await req.json();
 
         if (password !== process.env.ADMIN_PASSWORD) {
             return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
@@ -32,6 +32,7 @@ export async function PATCH(req: Request) {
         if (status !== undefined) updateData.status = status;
         if (converted !== undefined) updateData.converted = converted;
         if (followUpNeeded !== undefined) updateData.followUpNeeded = followUpNeeded;
+        if (whatsappStatus !== undefined) updateData.whatsappStatus = whatsappStatus;
         if (reason !== undefined) updateData.reason = reason;
 
         const application = await Application.findByIdAndUpdate(
